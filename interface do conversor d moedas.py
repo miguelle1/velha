@@ -3,17 +3,17 @@ from tkinter import *
 import requests
 
 def converter():
-    de = moeda_de.get
-    para = moeda_para.get
+    de = moeda_de.get()
+    para = moeda_para.get()
     cotacao = requests.get("https://economia.awesomeapi.com.br/last/{}".format(de + "-" + para))
     cotacao = cotacao.json()
     cotacao_moeda = float(cotacao["{}".format(de + para)]["bid"])
 
-    valor = valor_input.get
+    valor = float(valor_input.get())
     r = round(valor * cotacao_moeda, 2)
 
-    conversao = Label(jumi, text='r', font='Time 16 bold', anchor='w', fg=vermelho)
-    conversao.place(width=200, height=30, x=60, y=90)
+    conversao = Label(jumi, text=r, font='Time 16 bold', anchor='w', fg=vermelho)
+    conversao.place(width=200, height=30, x=120, y=120)
 
 
 
