@@ -82,8 +82,10 @@ def cenario_1():
     def usar_pocao(pocao):
         if pocao == "vermelha":
             resposta_label.config(text="Usaste a poção ácida! A porta está a dissolver-se... 💥")
-            # Aqui você pode fazer a porta "sumir" do canvas se quiser
             canvas.delete("porta")
+            # Espera 2 segundos antes de continuar
+            game_root.after(2000, lambda: [game_root.destroy(), cenario2()])
+
         else:
             resposta_label.config(text="Nada aconteceu. Essa poção não afeta a porta.")
 
@@ -103,42 +105,109 @@ def cenario_1():
 
 def cenario2():
     game_root = tk.Tk()
-    for widget in game_root.winfo_children():
-        widget.destroy()
 
-        label_instrucao = tk.Label(game_root, text="Você entrou na sala secreta! 🧪\nPara abrir o cofre, clique na sequência correta de elementos químicos:", font=("Arial", 14))
-        label_instrucao.pack(pady=15)
+    # Não é necessário destruir widgets aqui, pois é uma nova janela
 
-        resposta_label = tk.Label(game_root, text="", fg="blue")
-        resposta_label.pack(pady=5)
+    game_root.title("Sala da Chave")
 
-        # Sequência correta (exemplo)
-        sequencia_correta = ["H", "O", "Na"]
-        sequencia_usuario = []
+    canvas = tk.Canvas(game_root, width=700, height=350, bg="#f0f0f0")
+    canvas.pack()
 
-        def clicar_elemento(elemento):
-            nonlocal sequencia_usuario
-            sequencia_usuario.append(elemento)
-            resposta_label.config(text=f"Sequência atual: {' - '.join(sequencia_usuario)}")
+    # Fundo: parede e chão
+    canvas.create_rectangle(0, 0, 700, 100, fill="#b0b0b0")      # parede
+    canvas.create_rectangle(0, 100, 700, 350, fill="#e0d7c6")    # chão
 
-            if len(sequencia_usuario) == len(sequencia_correta):
-                if sequencia_usuario == sequencia_correta:
-                    resposta_label.config(text="Cofre aberto! Parabéns, você escapou! 🎉")
-                    for btn in botoes:
-                        btn.config(state="disabled")
-                else:
-                    resposta_label.config(text="Sequência incorreta! Tente novamente.")
-                    sequencia_usuario = []
+    # Mesa
+    canvas.create_rectangle(150, 220, 550, 320, fill="#8b7d6b", outline="black")
 
-        frame_botoes = tk.Frame(game_root)
-        frame_botoes.pack(pady=10)
+    # Gaveta (fechada)
+    gaveta_x1, gaveta_y1 = 320, 270
+    gaveta_x2, gaveta_y2 = 380, 300
+    puxador_x1, puxador_y1 = 340, 275
+    puxador_x2, puxador_y2 = 360, 295
 
-        elementos = ["H", "O", "Na", "Cl", "C"]
-        botoes = []
-        for elem in elementos:
-            btn = tk.Button(frame_botoes, text=elem, width=6, command=lambda e=elem: clicar_elemento(e))
-            btn.pack(side="left", padx=5)
-            botoes.append(btn)
+    gaveta = canvas.create_rectangle(gaveta_x1, gaveta_y1, gaveta_x2, gaveta_y2, fill="#c0c0c0", outline="black", width=2)
+    puxador = canvas.create_rectangle(puxador_x1, puxador_y1, puxador_x2, puxador_y2, fill="black", outline="gray20", width=2)
+
+    # Chave enferrujada
+    chave_x, chave_y = 250, 230
+    canvas.create_rectangle(chave_x, chave_y, chave_x + 70, chave_y + 15, fill="#a0522d", outline="black")
+    canvas.create_oval(chave_x - 15, chave_y - 10, chave_x + 15, chave_y + 25, fill="#8b4513", outline="black")
+
+    # Texto inicial
+    label_texto = tk.Label(game_root, text=(
+        "Após abrires a porta, encontras uma chave enferrujada sobre a mesa.\n"
+        "Ela abre uma gaveta, mas está enferrujada e não funciona bem.\n"
+        "Escolhe uma substância para tentar limpar a ferrugem."
+    ), font=("Arial", 12))
+    label_texto.pack(pady=5)
+
+    resposta_label = tk.Label(game_root, text="", fg="blue", font=("Arial", 12))
+    resposta_label.pack(pady=5)
+
+    # Criação dos botões fora das funções
+    frame_botoes = tk.Frame(game_root)
+    frame_botoes.pack(pady=5)
+
+    tk.Button(frame_botoes, text="Água", command=lambda: usar_substancia("água")).pack(side="left", padx=5)
+    tk.Button(frame_botoes, text="Álcool", command=lambda: usar_substancia("álcool")).pack(side="left", padx=5)
+    tk.Button(frame_botoes, text="Óleo", command=lambda: usar_substancia("óleo")).pack(side="left", padx=5)
+
+    dica_button = tk.Button(game_root, text="Mostrar dica", command=lambda: mostrar_dica())
+    dica_button.pack(pady=5)
+
+    sair_button = tk.Button(game_root, text="Sair do jogo", command=lambda: fechar_com_creditos())
+    # <-- não será mostrado agora, apenas após vitória
+
+    # Funções principais
+    def usar_substancia(substancia):
+        if substancia == "óleo":
+            resposta_label.config(text="Usaste óleo para limpar a ferrugem! A gaveta abre automaticamente.")
+            abrir_gaveta()
+        else:
+            resposta_label.config(text=f"Usar {substancia} não remove a ferrugem. Tenta outra substância.")
+
+    def mostrar_dica():
+        dica = (
+            "Dica:\n"
+            "A ferrugem é causada pela oxidação do ferro.\n"
+            "Para restaurar a mobilidade da chave enferrujada,\n"
+            "procura uma substância oleosa que lubrifique e proteja o metal."
+        )
+        resposta_label.config(text=dica)
+
+    def abrir_gaveta():
+        canvas.delete(gaveta)
+        canvas.delete(puxador)
+        canvas.create_rectangle(gaveta_x1 + 200, gaveta_y1, gaveta_x2 + 200, gaveta_y2,
+                                fill="#dcdcdc", outline="black", width=2)
+        canvas.create_rectangle(puxador_x1 + 200, puxador_y1, puxador_x2 + 200, puxador_y2,
+                                fill="black", outline="gray20", width=2)
+
+        label_texto.config(text="Abriste a gaveta! Dentro dela, encontras o mapa para a saída.")
+        resposta_label.config(text="Parabéns, acabaste o Escape Room Químico! 🎉")
+
+        # Esconder outros botões
+        frame_botoes.pack_forget()
+        dica_button.pack_forget()
+
+        # Mostrar botão de sair
+        sair_button.pack(pady=10)
+
+    def fechar_com_creditos():
+        # Limpar tudo
+        for widget in game_root.winfo_children():
+            widget.destroy()
+
+        # Tela final
+        tk.Label(game_root, text="Escape Room Químico", font=("Arial", 20, "bold")).pack(pady=20)
+        tk.Label(game_root, text="Obrigado por jogares!", font=("Arial", 14)).pack(pady=10)
+        tk.Label(game_root, text="Criado com Python e Tkinter 🧪🔐", font=("Arial", 12), fg="gray").pack(pady=10)
+
+        # Fechar após alguns segundos
+        game_root.after(4000, game_root.destroy)
+
+    game_root.mainloop()
 
 
 #-------------------------------------------------------------------------------
