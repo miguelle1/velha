@@ -75,11 +75,6 @@ def cenario_1():
     resposta_label.pack(pady=5)
 
 
-
-
-    #------------------------------------------------------------------------------------------------------------------------
-
-
     # Funções dos botões
     def usar_pocao(pocao):
         if pocao == "vermelha":
