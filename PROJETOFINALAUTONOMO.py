@@ -1,46 +1,48 @@
 import tkinter as tk
 
-class IntroScreen:
-    def __init__(self, master, on_start):
-        self.master = master
-        self.master.title("Introdução ao Jogo")
 
-        self.texts = [
-            "Bem-vindo ao Escape Room Químico!",
-            "Estás preso em um laboratório secreto.",
-            "O teu objetivo é resolver enigmas e escapar antes que seja tarde.",
-            "Boa sorte!"
-        ]
-        self.index = 0
-        self.on_start = on_start
+def intro():
+    global index
+    root = tk.Tk()
+    root.title("Introdução ao Jogo")
 
-        self.label = tk.Label(master, text=self.texts[self.index], font=("Arial", 16), wraplength=400, pady=20)
-        self.label.pack()
+    texts = [
+        "Bem-vindo ao Escape Room Químico!",
+        "Estás preso em um laboratório secreto.",
+        "O teu objetivo é resolver enigmas e escapar antes que seja tarde.",
+        "Boa sorte!"
+    ]
+    index = 0
 
-        self.next_button = tk.Button(master, text="Próximo", command=self.next_text)
-        self.next_button.pack(pady=10)
+    label = tk.Label(root, text=texts[index], font=("Arial", 16), wraplength=400, pady=20)
+    label.pack()
 
-    def next_text(self):
-        self.index += 1
-        if self.index < len(self.texts):
-            self.label.config(text=self.texts[self.index])
+    def next_text():
+        global index
+        index += 1
+        if index < len(texts):
+            label.config(text=texts[index])
         else:
             # Quando acabar, chama a função para iniciar o jogo
-            self.master.destroy()
-            self.on_start()
+            root.destroy()
+            cenario_1()
+
+    next_button = tk.Button(root, text="Próximo", command=next_text)
+    next_button.pack(pady=10)
+    root.mainloop()
 
 
 #---------------------------------------------------------------------------------------------------------
 
 
 def cenario_1():
-    # Aqui você colocaria o código para iniciar a janela principal do jogo
+    # Aqui coloco o código para iniciar a janela principal do jogo
     game_root = tk.Tk()
     game_root.title("Jogo Escape Room")
     canvas = tk.Canvas(game_root, width=600, height=400, bg="#e6f2ff")
     canvas.pack()
 
-    # Piso
+    # Chão
     canvas.create_rectangle(0, 280, 600, 400, fill="#cccccc", outline="")
 
     # Bancada
@@ -214,6 +216,4 @@ def cenario2():
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    intro = IntroScreen(root, cenario_1)
-    root.mainloop()
+    intro()
